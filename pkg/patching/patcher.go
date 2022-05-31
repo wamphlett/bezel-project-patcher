@@ -272,7 +272,12 @@ func (p *Patcher) produceLog(romCount, configCount int, romDirPath, configPath s
 // writeLogToFile write the log to a log file in the config directory
 func (p *Patcher) writeLogToFile(configDirPath, log string) error {
 	logName := fmt.Sprintf("patch-log.%d.log", time.Now().Unix())
-	return os.WriteFile(filepath.Join(configDirPath, logName), []byte(log), 0644)
+	logPath := filepath.Join(configDirPath, logName)
+	err := os.WriteFile(logPath, []byte(log), 0644)
+	if err == nil {
+		fmt.Printf("wrote log file to: %s\n", logPath)
+	}
+	return err
 }
 
 // sortAlphabetical sorts a slice alphabetically
