@@ -89,13 +89,13 @@ func (p *Patcher) PatchDirectory(configDirPath, romDirPath string, matchFlag mat
 
 	for _, match := range matches {
 		if match.matchType != MatchTypeNone {
+			// make sure the file has not already been added (might have been added by
+			// a previous match so we have to check)
+			if p.fileManager.FileExists(configDirPath, match.rom.ConfigName()) {
+				match.isExisting = true
+				continue
+			}
 			if !match.isExisting && shouldInclude(match.matchType, matchFlag) {
-				// make sure the file has not already been added (might have been added by
-				// a previous match so we have to check)
-				if p.fileManager.FileExists(configDirPath, match.rom.ConfigName()) {
-					match.isExisting = true
-					continue
-				}
 				// only do the file operations if --commit was specified. this gives the
 				// users a chance to sanity check the log before changing any of their files
 				if p.commit {
