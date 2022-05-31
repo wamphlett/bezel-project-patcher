@@ -2,9 +2,11 @@ package patching
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 )
 
 // FileMangerInterface defines the methods required to interact with the file system
@@ -261,8 +263,16 @@ func (p *Patcher) produceLog(romCount, configCount int, romDirPath, configPath s
 		log += fmt.Sprintf("NEW FILES (FUZZY MATCHES)%s\n%s\n\n", skipped(MatchTypeFuzzy, matchFlag), strings.Join(createdFiles[MatchTypeFuzzy], "\n"))
 	}
 
-	// TODO update this to write to a file
-	fmt.Println(log)
+	// write the log to a file and swallow any errors
+	if err := p.writeLogToFile(configPath, log); err != nil {
+		fmt.Errorf("failed to write log file: %s", err.Error())
+	}
+}
+
+// writeLogToFile write the log to a log file in the config directory
+func (p *Patcher) writeLogToFile(configDirPath, log string) error {
+	logName := fmt.Sprintf("patch-log.%d.log", time.Now().Unix())
+	return os.WriteFile(filepath.Join(configDirPath, logName), []byte(log), 0644)
 }
 
 // sortAlphabetical sorts a slice alphabetically
